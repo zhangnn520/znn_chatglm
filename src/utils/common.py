@@ -181,8 +181,8 @@ def prepare_args() -> Tuple[ModelArguments, DataTrainingArguments, Seq2SeqTraini
         model_args, data_args, training_args, finetuning_args = parser.parse_args_into_dataclasses()
 
     # Check arguments
-    if training_args.do_train and training_args.do_eval:
-        raise ValueError("We don't support training and evaluation simultaneously.")
+    # if training_args.do_train and training_args.do_eval:
+    #     raise ValueError("We don't support training and evaluation simultaneously.")
     training_args.optim = "adamw_torch" if training_args.optim == "adamw_hf" else training_args.optim  # suppress warning
 
     if model_args.quantization_bit is not None:  # perform FP16 checking or GPU checking
@@ -288,7 +288,7 @@ def prepare_data(
         my_datasets_0 = all_datasets[0]
         my_datasets_1 = []
     else:
-        all_datasets = concatenate_datasets(all_datasets)
+        # all_datasets = concatenate_datasets(all_datasets)# 这里不需要进行合并
         my_datasets_0 = all_datasets[0]
         my_datasets_1 = all_datasets[1]
     return my_datasets_0, my_datasets_1

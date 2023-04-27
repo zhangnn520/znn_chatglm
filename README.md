@@ -290,6 +290,10 @@ model = model.half().cuda()
 
 #### 7.2、预测结果截图
 
+​		代码经过改造后，可以进行训练和验证，验证生成对应的结果，后续可以对验证结果生成进行完善。
+
+<img src="./assets/image-20230427230702803.png" alt="image-20230427230702803" style="zoom:50%;" />
+
 <img src="./assets/image-20230427203205441.png" alt="image-20230427203205441" style="zoom:50%;" />
 
 ## 7、参考
