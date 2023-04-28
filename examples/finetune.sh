@@ -7,7 +7,6 @@ CUDA_VISIBLE_DEVICES=0 nohup python /root/autodl-tmp/chatglm_efficient_tune/src/
     --evaluation_strategy "steps" \
     --eval_steps 200 \
     --metric_for_best_model "eval_loss" \
-    --load_best_model_at_end \
     --dataset dev_examples,train_examples \
     --dataset_dir /root/autodl-tmp/chatglm_efficient_tune/data/my_data \
     --finetuning_type p_tuning \

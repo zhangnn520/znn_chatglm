@@ -86,8 +86,6 @@ def main():
                 writer.write(f"{res}\n")
         trainer.log_metrics("test", predict_results.metrics)
         trainer.save_metrics("test", predict_results.metrics)
-    else:
-        print("请检查你是需要训练和验证，还是预测，默认训练和验证是一起进行的，自主开发请自动改写！")
 
 
 if __name__ == "__main__":
