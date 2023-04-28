@@ -1,0 +1,32 @@
+{
+  "train_examples": {
+    "file_name": "train_examples.json",
+    "file_sha1": "",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  },
+  "dev_examples": {
+    "file_name": "dev_examples.json",
+    "file_sha1": "",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  },
+  "test_examples": {
+    "file_name": "train_examples.json",
+    "file_sha1": "",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  }
+}
