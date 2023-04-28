@@ -23,7 +23,7 @@ from utils import (
 def main():
     # Prepare pretrained model and dataset
     model_args, data_args, training_args, finetuning_args = prepare_args()
-    # 默认训练和验证集必须一起出现，如果不一起出现怎么验证他们训练效果呢
+    # 默认训练和验证集必须一起出现，后续训练部分传入参数参看原始finetune.sh，里面已经配置好了训练、验证、保存模型的参数。
     # dataset_one 第一个值默认为训练集或测试集，dataset_two 非空默认为验证集
     dataset_one, dataset_two = prepare_data(model_args, data_args, training_args)
     model, tokenizer = load_pretrained(model_args, finetuning_args, is_trainable=training_args.do_train)
@@ -57,35 +57,22 @@ def main():
         data_collator=data_collator,
         compute_metrics=ComputeMetrics(tokenizer) if training_args.predict_with_generate else None
     )
-    if training_args.do_train or training_args.do_eval:
-        # Training
-        if training_args.do_train:
-            train_result = trainer.train()
-            trainer.log_metrics("train", train_result.metrics)
-            trainer.save_metrics("train", train_result.metrics)
-            trainer.save_state()  # along with the loss values
-            trainer.save_model()
-            if finetuning_args.plot_loss:
-                plot_loss(training_args)
 
-        # Evaluation
-        if training_args.do_eval:
-            model.half()  # don't use `--fp16` argument at evaluation
-            metrics = trainer.evaluate(metric_key_prefix="eval", do_sample=True, top_p=0.7, max_length=768,
-                                       temperature=0.95)
-            trainer.log_metrics("eval", metrics)
-            trainer.save_metrics("eval", metrics)
-    else:
+    if training_args.do_train:
+        # 这里trainer.train中已经可以包含训练和验证功能，所有没有必要再写验证部分的代码
+        train_result = trainer.train()
+        trainer.log_metrics("train", train_result.metrics)
+        trainer.save_metrics("train", train_result.metrics)
+        if finetuning_args.plot_loss:
+            plot_loss(training_args)
+
+    if training_args.do_predict:
         # Predict
-        # if training_args.do_predict:
-        model.half()
+        model.half().cuda()
         predict_results = trainer.predict(test_dataset=test_dataset, metric_key_prefix="test", do_sample=True,
                                           top_p=0.7, max_length=768, temperature=0.95)
         labels = tokenizer.batch_decode(
             predict_results.label_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
-        )
-        predictions = tokenizer.batch_decode(
-            predict_results[0], skip_special_tokens=True, clean_up_tokenization_spaces=True
         )
         predictions = tokenizer.batch_decode(
             predict_results.predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True
@@ -95,11 +82,12 @@ def main():
         output_prediction_file = os.path.join(model_args.checkpoint_dir[0], "generated_predictions.json")
         with open(output_prediction_file, "w+", encoding="utf-8") as writer:
             for p, l in zip(predictions, labels):
-                res = json.dumps({"答案": l, "预测": p}, ensure_ascii=False,indent=4)
+                res = json.dumps({"答案": l, "预测": p}, ensure_ascii=False, indent=4)
                 writer.write(f"{res}\n")
         trainer.log_metrics("test", predict_results.metrics)
         trainer.save_metrics("test", predict_results.metrics)
-
+    else:
+        print("请检查你是需要训练和验证，还是预测，默认训练和验证是一起进行的，自主开发请自动改写！")
 
 
 if __name__ == "__main__":

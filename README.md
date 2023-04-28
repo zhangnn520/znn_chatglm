@@ -1,6 +1,6 @@
 # 					ChatGLM实战信息抽取（ner）
 
-​	声明：资料来自互联网，非原创，禁止用于商用 ，致敬原作者郑先生。
+​	声明：资料来自互联网，非原创，禁止用于商用 ，致敬原作者郑先生。开源不易，记得star 和fork
 
 ​	代码地址：
 
@@ -185,22 +185,31 @@ wandb==0.15.0
 CUDA_VISIBLE_DEVICES=0 nohup python finetune.py \
     --model_name_or_path /root/autodl-fs/chatglm-6b_model\
     --do_train \
-    --dataset train_examples,dev_examples \ # 支持多个文件用英语逗号隔开，这里代码已经改过来只能上传训练集和验证集各一个
-    --dataset_dir ./data/my_data \
+    --do_eval \
+    --evaluation_strategy "steps" \
+    --eval_steps 200 \
+    --metric_for_best_model "eval_loss" \
+    --load_best_model_at_end \
+    --dataset dev_examples,train_examples \ # 支持多个文件用英语逗号隔开，这里代码已经改过来只能上传训练集和验证集各一个
+    --dataset_dir /root/autodl-tmp/chatglm_efficient_tune/data/my_data \
     --finetuning_type p_tuning \
     --prefix_projection \
     --output_dir ../output_finetune \
     --overwrite_cache \
-    --per_device_train_batch_size 4 \
-    --gradient_accumulation_steps 4 \
+    --per_device_train_batch_size 6 \
+    --gradient_accumulation_steps 6 \
     --lr_scheduler_type cosine \
     --logging_steps 200 \
-    --save_steps 2000 \
-    --max_train_samples 15000 \
+    --save_steps 200 \
+    --max_train_samples 2000 \
     --learning_rate 2e-5 \
-    --num_train_epochs 4.0 \
+    --num_train_epochs 6.0 \
     --fp16
 ```
+
+![image-20230428105413525](./assets/image-20230428105413525.png)
+
+​		transformers.trainer类中，evaluation_strategy参数表示在训练的时候是否进行验证，按照什么方式进行验证。传入参数(默认值)为no时，不进行验证，如果是steps时，即按照step进行验证，如果是epoch时，则按照epoch进行验证。
 
 ### 4.2、单卡推理
 
@@ -290,9 +299,11 @@ model = model.half().cuda()
 
 #### 7.2、预测结果截图
 
-​		代码经过改造后，可以进行训练和验证，验证生成对应的结果，后续可以对验证结果生成进行完善。
+​		代码经过改造后，可以进行训练和验证，测试可以生成对应的结果。
 
-<img src="./assets/image-20230427230702803.png" alt="image-20230427230702803" style="zoom:50%;" />
+<img src="./assets/image-20230427230702803.png" alt="image-20230428123404985" style="zoom:50%;" />
+
+​		这是测试集预测的结果，如图所示。
 
 <img src="./assets/image-20230427203205441.png" alt="image-20230427203205441" style="zoom:50%;" />
 
